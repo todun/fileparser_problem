@@ -69,7 +69,56 @@ def datatxt2datacsv(datacsvfilepath, headerslist, datafilepath):
 		result.append(csvresult)
 	return result
 
-def dryrun(datadir, specsdir, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
+def createtableindb(dbconnection, dbcursor, aspeccreatestatement):
+	"""
+	"""
+	with dbconnection:
+		dbcursor = dbconnection.cursor()
+		dbcursor.execute(aspeccreatestatement)
+
+
+def dataloadintodb(dbconnection, dbcursor, datacsvfilepath, tablename):
+	"""
+	"""
+	with dbconnection:
+		#parse csv and read it into the database#
+		creader = csv.reader(open(datacsvfilepath, 'rb'), delimiter=',', quotechar='|')
+		t = (creader,)
+		for t in creader:
+			dbcursor.execute('INSERT INTO ' + tablename +' VALUES (?,?,?)', t )
+
+
+def showdbdata(dbconnection, dbcursor, tablename):
+	"""
+	"""
+	with dbconnection:
+
+		dbcursor.execute("SELECT * FROM " + tablename)
+		rows = dbcursor.fetchall()
+		for row in rows:
+			print row
+
+def loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename):
+	"""
+	"""
+	dbconnection = None
+	dbconnection = None
+
+	try:
+		dbconnection = lite.connect(dbname)
+		dbcursor = dbconnection.cursor()
+		createtableindb(dbconnection, dbcursor, aspeccreatestatement)
+		dataloadintodb(dbconnection, dbcursor, datacsvfilepath, tablename)
+		showdbdata(dbconnection, dbcursor, tablename)
+
+	except lite.Error, e:
+		print "Error %s:" % e.args[0]
+		sys.exit(1)
+	finally:
+		if dbconnection:
+			dbconnection.close()
+
+def dryrun(datadir, specsdir,dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 	print
 
 	#1. map of datafilename to datafilepath
@@ -100,87 +149,45 @@ def dryrun(datadir, specsdir, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 		print adatacsv
 
 		#6. load into db
-		con = None
-		try:
-			con = lite.connect(':memory:')
-			cur = con.cursor()
-			with con:
-				cur = con.cursor()
-				cur.execute(aspeccreatestatement)
-
-				#parse csv and read it into the database#
-				creader = csv.reader(open(datacsvfilepath, 'rb'), delimiter=',', quotechar='|')
-				t = (creader,)
-				for t in creader:
-					cur.execute('INSERT INTO ' + tablename +' VALUES (?,?,?)', t )
-
-				cur.execute("SELECT * FROM " + tablename)
-				rows = cur.fetchall()
-				for row in rows:
-					print row
-
-		except lite.Error, e:
-			print "Error %s:" % e.args[0]
-			sys.exit(1)
-		finally:
-			if con:
-				con.close()
+		loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename)
 
 
 datadir = "data"
 specsdir = 'specs'
+dbname = ':memory:'
 DATA_FILE_DELIMITER = '_'
 SPEC_FILE_DELIMITER = '.'
-dryrun(datadir, specsdir, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
+dryrun(datadir, specsdir, dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
 
 
 
-# import sqlite3 as lite
-# import sys
-# con = None
-# try:
-#     con = lite.connect('test.db')
-#     cur = con.cursor()
-#     cur.execute('SELECT SQLITE_VERSION()')
-#     data = cur.fetchone()
-#     print "SQLite version: %s" % data
-#     with con:
-# 		cur = con.cursor()
-# # 		cur.execute("CREATE TABLE Cars(Id INT, Name TEXT, Price INT)")
-# # 		cur.execute("INSERT INTO Cars VALUES(1,'Audi',52642)")
-# # 		cur.execute("INSERT INTO Cars VALUES(2,'Mercedes',57127)")
-# # 		cur.execute("INSERT INTO Cars VALUES(3,'Skoda',9000)")
-# # 		cur.execute("INSERT INTO Cars VALUES(4,'Volvo',29000)")
-# # 		cur.execute("INSERT INTO Cars VALUES(5,'Bentley',350000)")
-# # 		cur.execute("INSERT INTO Cars VALUES(6,'Citroen',21000)")
-# # 		cur.execute("INSERT INTO Cars VALUES(7,'Hummer',41400)")
-# # 		cur.execute("INSERT INTO Cars VALUES(8,'Volkswagen',21600)")
-# 		cur.execute("SELECT * FROM Cars")
-# 		rows = cur.fetchall()
-# 		for row in rows:
-# 			print row
-# except lite.Error, e:
-#     print "Error %s:" % e.args[0]
-#     sys.exit(1)
-# finally:
-#     if con:
-#         con.close()
 
 
-# read spec and data directory
-# map specfilepath with its datafilename
-# make relative path to a specfilepath
-# make relative path to a datafilepath
-# parse a specific spec file into a SQL statement create table statement with tablename == spec filename
-	# make sql create statement from specfiles
-	# make formated csv data file from text datafile
-
-# check corresponding data in both directories
-# convert datafile text file into proper csv file(anytime there is a number for the valid column, convert it to appropriate boolean)
-# parse a data spec file into a SQL insert
-# make lazy cache with key corresponding to file-format and value corresponding to path to data value
-# check if the directories has changed since last update
-# update database with new spec and data entry
+		# con = None
+# 		try:
+# 			con = lite.connect(':memory:')
+# 			cur = con.cursor()
+# 			with con:
+# 				cur = con.cursor()
+# 				cur.execute(aspeccreatestatement)
+#
+# 				#parse csv and read it into the database#
+# 				creader = csv.reader(open(datacsvfilepath, 'rb'), delimiter=',', quotechar='|')
+# 				t = (creader,)
+# 				for t in creader:
+# 					cur.execute('INSERT INTO ' + tablename +' VALUES (?,?,?)', t )
+#
+# 				cur.execute("SELECT * FROM " + tablename)
+# 				rows = cur.fetchall()
+# 				for row in rows:
+# 					print row
+#
+# 		except lite.Error, e:
+# 			print "Error %s:" % e.args[0]
+# 			sys.exit(1)
+# 		finally:
+# 			if con:
+# 				con.close()
 
 
 
