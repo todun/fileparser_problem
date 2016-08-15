@@ -7,6 +7,7 @@ import csv
 import re
 import sqlite3 as lite
 import sys
+import getopt
 
 def listdirfiles(dir):
 	"""
@@ -109,7 +110,7 @@ def loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename):
 		dbcursor = dbconnection.cursor()
 		createtableindb(dbconnection, dbcursor, aspeccreatestatement, tablename)
 		dataloadintodb(dbconnection, dbcursor, datacsvfilepath, tablename)
-		showdbdata(dbconnection, dbcursor, tablename)
+# 		showdbdata(dbconnection, dbcursor, tablename)
 		dbconnection.commit()
 	except lite.Error, e:
 		if dbconnection:
@@ -121,22 +122,17 @@ def loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename):
 		if dbconnection:
 			dbconnection.close()
 
-def dryrun(datadir, specsdir,dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
-	print
-
+def runapp(datadir, specsdir,dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 	#1. map of datafilename to datafilepath
 	datafileslist = listdirfiles(datadir) ;
 	datafilesmap = list2map(datafileslist, DATA_FILE_DELIMITER)
-	print datafilesmap
 
 	#2. map of specsfilename to specsfilepath
 	specsfileslist = listdirfiles(specsdir) ;
 	specsfilesmap = list2map(specsfileslist, SPEC_FILE_DELIMITER)
-	print specsfilesmap
 
 	#3. map specfilepath with its corresponding datafilename
 	specfilepathwithdatamap = mapwithsamekeys(specsfilesmap, datafilesmap)
-	print specfilepathwithdatamap
 
 	#6. parse a specific spec file into a SQL statement create table statement with tablename == spec filename
 	for specfilename, datafilename in specfilepathwithdatamap.iteritems():
@@ -146,21 +142,32 @@ def dryrun(datadir, specsdir,dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 		datacsvfilepath = relativedatacsvpath(datacsvfilename)
 		#4. make sql create statement from specfiles
 		aspeccreatestatement, headerslist, tablename = sqlcreatestatement(specfilename, specfilepath)
-		print aspeccreatestatement
+
 		#5. make formated csv data file from text datafile
 		adatacsv = datatxt2datacsv(datacsvfilepath, headerslist, datafilepath)
-		print adatacsv
 
 		#6. load into db
 		loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename)
 
+	print 'load complete'
 
-datadir = "data"
-specsdir = 'specs'
-dbname = 'test.db'
-DATA_FILE_DELIMITER = '_'
-SPEC_FILE_DELIMITER = '.'
-dryrun(datadir, specsdir, dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
+
+
+
+def main(argv):
+	"""
+	"""
+
+	datadir = sys.argv[1] #"data"
+	specsdir = sys.argv[2] #'specs'
+	dbname = sys.argv[3]#'test.db'
+	DATA_FILE_DELIMITER = sys.argv[4]#'_'
+	SPEC_FILE_DELIMITER = sys.argv[5]#'.'
+	runapp(datadir, specsdir, dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
+
 
 # add unit tests
 # support arbitrary number of columns

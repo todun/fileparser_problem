@@ -1,6 +1,9 @@
 # fileparser
 Parse files and load into database
 
+## Run App
+`python fileparser.py data specs test.db _ .`
+
 ## Problem definition
 
 You receive drops of data files and specification files. Write an application
