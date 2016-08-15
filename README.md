@@ -1,6 +1,9 @@
 # fileparser
 Parse files and load into database
 
+## Python Version
+Python 2.7.10
+
 ## Run App
 `python fileparser.py None None data specs test.db _ .`
 
