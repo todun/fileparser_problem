@@ -89,4 +89,4 @@ ENV/
 .ropeproject
 
 # generated files
-# datacsv/*
+datacsv/*.csv
