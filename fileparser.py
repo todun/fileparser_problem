@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 
 import os
@@ -65,13 +66,8 @@ def datatxt2datacsv(datacsvfilepath, headerslist, datafilepath):
 		result.append(csvresult)
 	return result
 
-def testlist2map():
-	datadir = "data"
-	specsdir = 'specs'
-	DATA_FILE_DELIMITER = '_'
-	SPEC_FILE_DELIMITER = '.'
+def dryrun(datadir, specsdir, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 	print
-
 
 	#1. map of datafilename to datafilepath
 	datafileslist = listdirfiles(datadir) ;
@@ -100,7 +96,11 @@ def testlist2map():
 		adatacsv = datatxt2datacsv(datacsvfilepath, headerslist, datafilepath)
 		print adatacsv
 
-testlist2map()
+datadir = "data"
+specsdir = 'specs'
+DATA_FILE_DELIMITER = '_'
+SPEC_FILE_DELIMITER = '.'
+dryrun(datadir, specsdir, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
 
 # print
 # import re
