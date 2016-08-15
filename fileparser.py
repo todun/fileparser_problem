@@ -60,7 +60,6 @@ def datatxt2datacsv(datacsvfilepath, headerslist, datafilepath):
 	data = open(datafilepath, 'rU')
 	datacsv = open(datacsvfilepath, "w")
 	csv_out=csv.writer(datacsv)
-	csv_out.writerow(headerslist)
 	result = []
 	for line in data:
 		parseresult = re.split('(\d)', line)

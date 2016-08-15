@@ -7,6 +7,25 @@ Parse files and load into database
 ## Run Tests
 `python testfileparser.py`
 
+## Caveats
+* Not enough error checking
+* Not enough data sanitation/cleaning
+* Assumes only three columns
+* Incomplete unit tests
+* Assumes width column is after column name
+* Expects "column name" to appear with double quotes
+
+## Assumptions
+- assumes that there are only ever three columns
+- assume when files come to the system, they come in pairs
+- assume data and spec for a given day is unique (not currently handled)
+- the filenames are not repeated
+- repeated filetypes would have different dates
+- the most recent filetype would have the most recent date
+    - this assumes that the files are loaded/dropped once a day
+- assume file paths are for linux/unix system
+- sqlite3 dbs end with .db extensions
+
 ## Problem definition
 
 You receive drops of data files and specification files. Write an application
