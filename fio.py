@@ -30,6 +30,9 @@ def relativespecpath(specfilename):
 def relativedatapath(datapath):
 	return 'data/' + datapath
 
+def relativedatacsvpath(datacsvfilename):
+	return 'datacsv/' + datacsvfilename +'.csv'
+
 def sqlcreatestatement(specfilename, specfilepath):
 	"""
 	make sql create statement from specfiles
@@ -88,11 +91,12 @@ def testlist2map():
 	for specfilename, datafilename in specfilepathwithdatamap.iteritems():
 		specfilepath = relativespecpath(specfilename)
 		datafilepath = relativedatapath(datafilename)
+		datacsvfilename = datafilename.split('.txt')[0]
+		datacsvfilepath = relativedatacsvpath(datacsvfilename)
 		#4. make sql create statement from specfiles
 		aspeccreatestatement, headerslist = sqlcreatestatement(specfilename, specfilepath)
 		print aspeccreatestatement
 		#5. make formated csv data file from text datafile
-		datacsvfilepath = 'datacsv/testformat1_2015-06-28.csv'
 		adatacsv = datatxt2datacsv(datacsvfilepath, headerslist, datafilepath)
 		print adatacsv
 
