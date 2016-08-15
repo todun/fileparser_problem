@@ -16,8 +16,10 @@ SPEC_FILE_DELIMITER = '.'
 class FileParserTests(unittest.TestCase):
 
 	def testlistdirfiles(self):
-		self.failUnless( fileparser.listdirfiles(datadir)[1] == 'testformat1_2015-06-28.txt' )
+		self.failUnless( len(fileparser.listdirfiles(datadir)) is not 0 )
 
+	def testrunapp(self):
+		self.failUnless( fileparser.runapp(None, None, 'data', 'specs', 'test.db', '_', '.') is True)
 
 def main():
     unittest.main()

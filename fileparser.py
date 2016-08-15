@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 import os
 import csv
 import re
@@ -98,12 +97,10 @@ def showdbdata(dbconnection, dbcursor, tablename):
 		for row in rows:
 			print row
 
-def loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename):
+def loaddb(dbconnection, dbcursor, dbname, aspeccreatestatement, datacsvfilepath, tablename):
 	"""
 	"""
-	dbconnection = None
-	dbconnection = None
-
+	isloaded = False
 	try:
 		dbconnection = lite.connect(dbname)
 		dbcursor = dbconnection.cursor()
@@ -111,6 +108,7 @@ def loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename):
 		dataloadintodb(dbconnection, dbcursor, datacsvfilepath, tablename)
 # 		showdbdata(dbconnection, dbcursor, tablename)
 		dbconnection.commit()
+		isloaded = True
 	except lite.Error, e:
 		if dbconnection:
 			dbconnection.rollback()
@@ -120,8 +118,9 @@ def loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename):
 	finally:
 		if dbconnection:
 			dbconnection.close()
+		return isloaded
 
-def runapp(datadir, specsdir,dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
+def runapp(dbconnection, dbcursor,datadir, specsdir,dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 	#1. map of datafilename to datafilepath
 	datafileslist = listdirfiles(datadir) ;
 	datafilesmap = list2map(datafileslist, DATA_FILE_DELIMITER)
@@ -146,44 +145,22 @@ def runapp(datadir, specsdir,dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 		adatacsv = datatxt2datacsv(datacsvfilepath, headerslist, datafilepath)
 
 		#6. load into db
-		loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename)
+		isloaded = loaddb(dbconnection, dbcursor, dbname, aspeccreatestatement, datacsvfilepath, tablename)
 
-	print 'load complete'
-
-
-
+	print 'load complete', isloaded
 
 def main(argv):
 	"""
 	"""
 
-	datadir = sys.argv[1] #"data"
-	specsdir = sys.argv[2] #'specs'
-	dbname = sys.argv[3]#'test.db'
-	DATA_FILE_DELIMITER = sys.argv[4]#'_'
-	SPEC_FILE_DELIMITER = sys.argv[5]#'.'
-	runapp(datadir, specsdir, dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
+	dbconnection = sys.argv[1] #None
+	dbcursor = sys.argv[2] #None
+	datadir = sys.argv[3] #"data"
+	specsdir = sys.argv[4] #'specs'
+	dbname = sys.argv[5]#'test.db'
+	DATA_FILE_DELIMITER = sys.argv[6]#'_'
+	SPEC_FILE_DELIMITER = sys.argv[7]#'.'
+	runapp(dbconnection, dbcursor, datadir, specsdir, dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
-
-
-# add unit tests
-# support arbitrary number of columns
-# read spec and data directory
-# map specfilepath with its datafilename
-# make relative path to a specfilepath
-# make relative path to a datafilepath
-# parse a specific spec file into a SQL statement create table statement with tablename == spec filename
-	# make sql create statement from specfiles
-	# make formated csv data file from text datafile
-
-# check corresponding data in both directories
-# convert datafile text file into proper csv file(anytime there is a number for the valid column, convert it to appropriate boolean)
-# parse a data spec file into a SQL insert
-# make lazy cache with key corresponding to file-format and value corresponding to path to data value
-# check if the directories has changed since last update
-# update database with new spec and data entry
-
-
-

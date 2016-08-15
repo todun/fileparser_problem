@@ -2,7 +2,7 @@
 Parse files and load into database
 
 ## Run App
-`python fileparser.py data specs test.db _ .`
+`python fileparser.py None None data specs test.db _ .`
 
 ## Run Tests
 `python testfileparser.py`
