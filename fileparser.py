@@ -69,13 +69,14 @@ def datatxt2datacsv(datacsvfilepath, headerslist, datafilepath):
 		result.append(csvresult)
 	return result
 
-def createtableindb(dbconnection, dbcursor, aspeccreatestatement):
+def createtableindb(dbconnection, dbcursor, aspeccreatestatement, tablename):
 	"""
 	"""
 	with dbconnection:
 		dbcursor = dbconnection.cursor()
-		dbcursor.execute(aspeccreatestatement)
+		dbcursor.execute("DROP TABLE IF EXISTS " + tablename)
 
+		dbcursor.execute(aspeccreatestatement)
 
 def dataloadintodb(dbconnection, dbcursor, datacsvfilepath, tablename):
 	"""
@@ -86,7 +87,6 @@ def dataloadintodb(dbconnection, dbcursor, datacsvfilepath, tablename):
 		t = (creader,)
 		for t in creader:
 			dbcursor.execute('INSERT INTO ' + tablename +' VALUES (?,?,?)', t )
-
 
 def showdbdata(dbconnection, dbcursor, tablename):
 	"""
@@ -107,11 +107,14 @@ def loaddb(dbname, aspeccreatestatement, datacsvfilepath, tablename):
 	try:
 		dbconnection = lite.connect(dbname)
 		dbcursor = dbconnection.cursor()
-		createtableindb(dbconnection, dbcursor, aspeccreatestatement)
+		createtableindb(dbconnection, dbcursor, aspeccreatestatement, tablename)
 		dataloadintodb(dbconnection, dbcursor, datacsvfilepath, tablename)
 		showdbdata(dbconnection, dbcursor, tablename)
-
+		dbconnection.commit()
 	except lite.Error, e:
+		if dbconnection:
+			dbconnection.rollback()
+
 		print "Error %s:" % e.args[0]
 		sys.exit(1)
 	finally:
@@ -154,11 +157,13 @@ def dryrun(datadir, specsdir,dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 
 datadir = "data"
 specsdir = 'specs'
-dbname = ':memory:'
+dbname = 'test.db'
 DATA_FILE_DELIMITER = '_'
 SPEC_FILE_DELIMITER = '.'
 dryrun(datadir, specsdir, dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
 
+# add unit tests
+# support arbitrary number of columns
 # read spec and data directory
 # map specfilepath with its datafilename
 # make relative path to a specfilepath
