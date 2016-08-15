@@ -5,6 +5,8 @@
 import os
 import csv
 import re
+import sqlite3 as lite
+import sys
 
 def listdirfiles(dir):
 	"""
@@ -41,13 +43,14 @@ def sqlcreatestatement(specfilename, specfilepath):
 
 	fileformatcolumnspecs = csv.DictReader(open(specfilepath), skipinitialspace=True)
 	headerslist = []
+	tablename = specfilename
 	sqlcreatestatement = "CREATE TABLE" + " "+specfilename + "("
 	for columnspec in fileformatcolumnspecs:
 		sqlcreatestatement = sqlcreatestatement + columnspec['column name'] +' '+ columnspec['datatype']+ '('+ columnspec['width'] + ')' + ','
 		headerslist.append(columnspec['column name'])
 	sqlcreatestatement = sqlcreatestatement  +');'
 	sqlcreatestatement = sqlcreatestatement.split(',);')[0] +');'
-	return sqlcreatestatement, headerslist
+	return sqlcreatestatement, headerslist, tablename
 
 def datatxt2datacsv(datacsvfilepath, headerslist, datafilepath):
 	"""
@@ -90,11 +93,39 @@ def dryrun(datadir, specsdir, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER):
 		datacsvfilename = datafilename.split('.txt')[0]
 		datacsvfilepath = relativedatacsvpath(datacsvfilename)
 		#4. make sql create statement from specfiles
-		aspeccreatestatement, headerslist = sqlcreatestatement(specfilename, specfilepath)
+		aspeccreatestatement, headerslist, tablename = sqlcreatestatement(specfilename, specfilepath)
 		print aspeccreatestatement
 		#5. make formated csv data file from text datafile
 		adatacsv = datatxt2datacsv(datacsvfilepath, headerslist, datafilepath)
 		print adatacsv
+
+		#6. load into db
+		con = None
+		try:
+			con = lite.connect(':memory:')
+			cur = con.cursor()
+			with con:
+				cur = con.cursor()
+				cur.execute(aspeccreatestatement)
+
+				#parse csv and read it into the database#
+				creader = csv.reader(open(datacsvfilepath, 'rb'), delimiter=',', quotechar='|')
+				t = (creader,)
+				for t in creader:
+					cur.execute('INSERT INTO ' + tablename +' VALUES (?,?,?)', t )
+
+				cur.execute("SELECT * FROM " + tablename)
+				rows = cur.fetchall()
+				for row in rows:
+					print row
+
+		except lite.Error, e:
+			print "Error %s:" % e.args[0]
+			sys.exit(1)
+		finally:
+			if con:
+				con.close()
+
 
 datadir = "data"
 specsdir = 'specs'
@@ -102,47 +133,38 @@ DATA_FILE_DELIMITER = '_'
 SPEC_FILE_DELIMITER = '.'
 dryrun(datadir, specsdir, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
 
-# print
-# import re
-# data = open('data/testformat1_2015-06-28.txt', 'rU')
-# datacsv = open('datacsv/testformat1_2015-06-28.csv', "w")
-# headers = ['name','valid','count']
-# csv_out=csv.writer(datacsv)
-# csv_out.writerow(headers)
-# for line in data:
-# 	parseresult = re.split('(\d)', line)
-# 	boolean = (parseresult[1] is '1')
-# 	csvresult = (parseresult[0].strip(), boolean, int("".join(parseresult[2:len(parseresult)-1])))
-# 	print csvresult
-# 	csv_out.writerow(csvresult)
-# 	print >> datacsv, csvresult
 
 
-
-# 	print >> parseresult[0], boolean, "".join(parseresult[2:len(parseresult)-1])
-# 	print >> love, line,
-
-# with open('ur file.csv','w') as out:
-#     csv_out=csv.writer(out)
-#     csv_out.writerow(['name','num'])
-#     for row in data:
-#         csv_out.writerow(row)
-
-
-
-# import re
-# filenames = ['testformat1 _2015-06-28.txt', 'testfo rmat2_2015-06-28.txt']
-# a = ''
-# b = ''
-# c = ''
-# for filename in filenames:
-# 	m = re.match("\A(\s+)(_)(.*)\Z", filename)
-# 	if m:
-# 		a = m.group(0)
-# 		b = m.group(1)
-# 	print a,b,c
-
-
+# import sqlite3 as lite
+# import sys
+# con = None
+# try:
+#     con = lite.connect('test.db')
+#     cur = con.cursor()
+#     cur.execute('SELECT SQLITE_VERSION()')
+#     data = cur.fetchone()
+#     print "SQLite version: %s" % data
+#     with con:
+# 		cur = con.cursor()
+# # 		cur.execute("CREATE TABLE Cars(Id INT, Name TEXT, Price INT)")
+# # 		cur.execute("INSERT INTO Cars VALUES(1,'Audi',52642)")
+# # 		cur.execute("INSERT INTO Cars VALUES(2,'Mercedes',57127)")
+# # 		cur.execute("INSERT INTO Cars VALUES(3,'Skoda',9000)")
+# # 		cur.execute("INSERT INTO Cars VALUES(4,'Volvo',29000)")
+# # 		cur.execute("INSERT INTO Cars VALUES(5,'Bentley',350000)")
+# # 		cur.execute("INSERT INTO Cars VALUES(6,'Citroen',21000)")
+# # 		cur.execute("INSERT INTO Cars VALUES(7,'Hummer',41400)")
+# # 		cur.execute("INSERT INTO Cars VALUES(8,'Volkswagen',21600)")
+# 		cur.execute("SELECT * FROM Cars")
+# 		rows = cur.fetchall()
+# 		for row in rows:
+# 			print row
+# except lite.Error, e:
+#     print "Error %s:" % e.args[0]
+#     sys.exit(1)
+# finally:
+#     if con:
+#         con.close()
 
 
 # read spec and data directory
@@ -159,3 +181,7 @@ dryrun(datadir, specsdir, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
 # make lazy cache with key corresponding to file-format and value corresponding to path to data value
 # check if the directories has changed since last update
 # update database with new spec and data entry
+
+
+
+
