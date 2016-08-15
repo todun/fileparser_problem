@@ -159,36 +159,20 @@ DATA_FILE_DELIMITER = '_'
 SPEC_FILE_DELIMITER = '.'
 dryrun(datadir, specsdir, dbname, DATA_FILE_DELIMITER,SPEC_FILE_DELIMITER)
 
+# read spec and data directory
+# map specfilepath with its datafilename
+# make relative path to a specfilepath
+# make relative path to a datafilepath
+# parse a specific spec file into a SQL statement create table statement with tablename == spec filename
+	# make sql create statement from specfiles
+	# make formated csv data file from text datafile
 
-
-
-
-		# con = None
-# 		try:
-# 			con = lite.connect(':memory:')
-# 			cur = con.cursor()
-# 			with con:
-# 				cur = con.cursor()
-# 				cur.execute(aspeccreatestatement)
-#
-# 				#parse csv and read it into the database#
-# 				creader = csv.reader(open(datacsvfilepath, 'rb'), delimiter=',', quotechar='|')
-# 				t = (creader,)
-# 				for t in creader:
-# 					cur.execute('INSERT INTO ' + tablename +' VALUES (?,?,?)', t )
-#
-# 				cur.execute("SELECT * FROM " + tablename)
-# 				rows = cur.fetchall()
-# 				for row in rows:
-# 					print row
-#
-# 		except lite.Error, e:
-# 			print "Error %s:" % e.args[0]
-# 			sys.exit(1)
-# 		finally:
-# 			if con:
-# 				con.close()
-
+# check corresponding data in both directories
+# convert datafile text file into proper csv file(anytime there is a number for the valid column, convert it to appropriate boolean)
+# parse a data spec file into a SQL insert
+# make lazy cache with key corresponding to file-format and value corresponding to path to data value
+# check if the directories has changed since last update
+# update database with new spec and data entry
 
 
 
