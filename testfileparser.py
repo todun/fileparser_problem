@@ -19,7 +19,7 @@ class FileParserTests(unittest.TestCase):
 		self.failUnless( len(fileparser.listdirfiles(datadir)) is not 0 )
 
 	def testrunapp(self):
-		self.failUnless( fileparser.runapp(None, None, 'data', 'specs', 'test.db', '_', '.') is True)
+		self.failUnless( fileparser.runapp(None, None, 'data', 'specs', 'test.db', '_', '.')  == True)
 
 def main():
     unittest.main()

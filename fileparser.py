@@ -148,6 +148,7 @@ def runapp(dbconnection, dbcursor,datadir, specsdir,dbname, DATA_FILE_DELIMITER,
 		isloaded = loaddb(dbconnection, dbcursor, dbname, aspeccreatestatement, datacsvfilepath, tablename)
 
 	print 'load complete', isloaded
+	return isloaded
 
 def main(argv):
 	"""
