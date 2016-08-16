@@ -4,8 +4,33 @@ Parse files and load into database
 ## Python Version
 Python 2.7.10
 
+## Database
+- Sqlite3
+
 ## Run App
-`python fileparser.py None None data specs test.db _ .`
+### API
+
+> Default values not currently supported
+
+- DEBUG mode (default value of '0' indicates no debug output)
+- Database Connection : connection to database (default value of 'None')
+- Database Cursor : cursor to database (default value of 'None')
+- Data directory name : name of data directory (default value of 'data')
+- Specification directory name : name of specification directory (default value of 'specs')
+- Database name : name of SQL database (default value of 'test.db')
+- Data file name delimiter : delimiter used to separate fileformat from date (default is '_')
+- Spec file name delimiter : delimiter used to separate fileformat from extension name (default is '.')
+
+### Using local sqlite db (no debug)
+`python fileparser.py 0 None None data specs test.db _ .`
+
+### Using in memory option (no debug)
+`python fileparser.py 0 None None data specs :memory: _ .`
+
+### Using debug option
+- Shows the table information
+`python fileparser.py 1 None None data specs test.db _ .`
+
 
 ## Run Tests
 `python testfileparser.py`
@@ -17,6 +42,8 @@ Python 2.7.10
 * Incomplete unit tests
 * Assumes width column is after column name
 * Expects "column name" to appear with double quotes
+* No performance testing to benchmark performance
+* Not enough documentation nor 'pydocs' for functions
 
 ## Assumptions
 - assumes that there are only ever three columns
@@ -96,11 +123,9 @@ Quuxitude | True  |   103
 - Your application can be written with language/libraries of your choosing.
 - Database type and connection mechanism is left to your discretion.
 - You should include tests that cover, at least, the examples given.
-- You should implement the conversions for the SQL data types: TEXT, BOOLEAN,
-and INTEGER
+- You should implement the conversions for the SQL data types: TEXT, BOOLEAN, and INTEGER
 - Files can be assumed to use UTF-8 encoding
-- You should be prepared to discuss implementation decisions and possible
-extensions to your application.
+- You should be prepared to discuss implementation decisions and possible extensions to your application.
 
-REFERENCE:
-https://gist.githubusercontent.com/dmshann0n/6dfba5ebdebe1098d579/raw/ccc74cec150a3580f8399ade58f4dd247df28456/file_parser.md
+## Attributions
+- Enumeration from quora and SO
